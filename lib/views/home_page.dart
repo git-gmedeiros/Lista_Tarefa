@@ -18,6 +18,13 @@ class _HomePageState extends State<HomePage> {
   bool _loading2 = true;
   double _lenghtBD;
   double _percentIsDone;
+  List<Color> _colorsList = [
+    Colors.blue.shade100,
+    Colors.green.shade100,
+    Colors.yellow.shade100,
+    Colors.orange.shade100,
+    Colors.red.shade100
+  ];
 
   @override
   void initState() {
@@ -47,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     int y = await _helper.getIsDone();
     setState(() {
       _percentIsDone = double.parse(y.toString()) / double.parse(x.toString());
-      //print(" %$_percentIsDone");
+      print(" %$_percentIsDone");
     });
   }
 
@@ -72,8 +79,8 @@ class _HomePageState extends State<HomePage> {
           width: 140.0,
           lineHeight: 14.0,
           percent: _percentIsDone,
-          backgroundColor: Colors.grey,
-          progressColor: Colors.red,
+          backgroundColor: Colors.grey.shade200,
+          progressColor: Colors.green,
         ),
         padding: const EdgeInsets.all(8.0),
       );
@@ -86,28 +93,43 @@ class _HomePageState extends State<HomePage> {
         child: _loading ? CircularProgressIndicator() : Text("Sem tarefas!"),
       );
     } else {
-      return ListView.separated(
-        itemBuilder: _buildTaskItemSlidable,
-        itemCount: _taskList.length,
-        separatorBuilder: (BuildContext context, int index) => Divider(),
-      );
+      return Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.white, Colors.grey.shade50])),
+          child: ListView.separated(
+            itemBuilder: _buildTaskItemSlidable,
+            itemCount: _taskList.length,
+            separatorBuilder: (BuildContext context, int index) => Divider(),
+          ));
     }
   }
 
   Widget _buildTaskItem(BuildContext context, int index) {
     final task = _taskList[index];
-    return CheckboxListTile(
-      value: task.isDone,
-      title: Text(task.title),
-      subtitle: Text(task.description),
-      onChanged: (bool isChecked) async {
-        setState(() {
-          task.isDone = isChecked;
-        });
-        _helper.update(task);
-        updateLinearPercent();
-      },
-    );
+    return Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.bottomRight,
+                end: Alignment.topLeft,
+                colors: [
+              _colorsList[int.parse(task.priority) - 1],
+              Colors.white
+            ])),
+        child: CheckboxListTile(
+          value: task.isDone,
+          title: Text(task.title),
+          subtitle: Text(task.description),
+          onChanged: (bool isChecked) async {
+            setState(() {
+              task.isDone = isChecked;
+            });
+            _helper.update(task);
+            updateLinearPercent();
+          },
+        ));
   }
 
   Widget _buildTaskItemSlidable(BuildContext context, int index) {
@@ -165,7 +187,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     _helper.delete(deletedTask.id);
-
+    updateLinearPercent();
     Flushbar(
       title: "Exclusão de tarefas",
       message: "Tarefa \"${deletedTask.title}\" removida.",
@@ -182,6 +204,7 @@ class _HomePageState extends State<HomePage> {
             _taskList.insert(index, deletedTask);
             _helper.update(deletedTask);
           });
+          updateLinearPercent();
         },
       ),
     )..show(context);

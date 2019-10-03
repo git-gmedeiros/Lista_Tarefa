@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lista_tarefas/models/task.dart';
 
-
 class TaskDialog extends StatefulWidget {
   final Task task;
 
@@ -61,6 +60,8 @@ class _TaskDialogState extends State<TaskDialog> {
             ),
             TextFormField(
               controller: _descriptionController,
+              keyboardType: TextInputType.multiline,
+              maxLines: 3,
               decoration: InputDecoration(labelText: 'Descrição'),
               validator: (text) {
                 return text.isEmpty ? "Insira a descrição!" : null;
@@ -69,9 +70,12 @@ class _TaskDialogState extends State<TaskDialog> {
             TextFormField(
               controller: _priorityController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Prioridade'),
+              decoration: InputDecoration(labelText: 'Prioridade de 1 a 5'),
               validator: (text) {
-                return text.isEmpty ? "Insira a prioridade!" : null;
+                if (text.isEmpty || int.parse(text) < 1 || int.parse(text) > 5)
+                  return "Insira a prioridade ( 1 A 5)!";
+                else
+                  return null;
               },
             )
           ],
